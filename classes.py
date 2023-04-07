@@ -55,33 +55,37 @@ class Piece:
 
     # updates block positions based on current piece position
     def update(self):
+        i = 0
         for block in self.blocks:
-            block.x = self.position[0] + constants.PIECES[self.piece_type][self.orientation][block][0]
-            block.y = self.position[1] + constants.PIECES[self.piece_type][self.orientation][block][1]
+            block.x = self.position[0] + constants.PIECES[self.piece_type][self.orientation][i][0]
+            block.y = self.position[1] + constants.PIECES[self.piece_type][self.orientation][i][1]
+            i += 1
 
     def drop(self):
-        for block in self.blocks:
-            block.drop()
+        self.position[1] += 1
+        self.update()
 
     def shift_left(self):
-        for block in self.blocks:
-            block.shift_left()
+        self.position[0] -= 1
+        self.update()
 
     def shift_right(self):
-        for block in self.blocks:
-            block.shift_right()
+        self.position[0] += 1
+        self.update()
 
     def rotate_clockwise(self):
         if self.orientation == 3:
             self.orientation = 0
         else:
             self.orientation += 1
+        self.update()
 
     def rotate_counterclockwise(self):
         if self.orientation == 0:
             self.orientation = 3
         else:
             self.orientation -= 1
+        self.update()
 
 
 # board keeps track of the blocks on the tetris board and draws them
@@ -108,11 +112,40 @@ class Game:
         self.is_game_over = False
         self.piece = Piece()
 
+    def is_valid_move(self, move):
+        if move == "down":
+            return True
+        if move == "left":
+            return True
+        if move == "right":
+            return True
+        if move == "clockwise":
+            return True
+        if move == "counterclockwise":
+            return True
+    def get_user_input(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_DOWN and self.is_valid_move("down"):
+                self.piece.drop()
+            if event.key == pygame.K_LEFT and self.is_valid_move("left"):
+                self.piece.shift_left()
+            if event.key == pygame.K_RIGHT and self.is_valid_move("right"):
+                self.piece.shift_right()
+            if event.key == pygame.K_UP and self.is_valid_move("clockwise"):
+                self.piece.drop()
+            if event.key == pygame.K_z and self.is_valid_move("counterclockwise"):
+                print("z was pressed!")
+                self.piece.rotate_counterclockwise()
+            if event.key == pygame.K_x:
+                print("x was pressed!")
+                self.piece.rotate_clockwise()
     def run(self):
         while not self.is_game_over:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+                self.get_user_input(event)
+
             self.screen.fill("black")
             self.piece.draw(self.screen)
             pygame.display.flip()
