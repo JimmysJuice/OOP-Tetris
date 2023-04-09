@@ -1,97 +1,10 @@
 import pygame
-import sys
 import constants
-import random
+import sys
+from piece import Piece
 
 
-# Block represents the individual block that is drawn on the tetris board
-class Block:
-    def __init__(self, x, y, color):
-        self.x = x
-        self.y = y
-        self.color = color
-
-    def draw(self, surface):
-        pygame.draw.rect(surface, self.color, (self.x * constants.TILE_SIZE, self.y * constants.TILE_SIZE,
-                                               constants.TILE_SIZE, constants.TILE_SIZE))
-        pygame.draw.rect(surface, constants.COLORS["black"], (self.x * constants.TILE_SIZE,
-                                                              self.y * constants.TILE_SIZE, constants.TILE_SIZE,
-                                                              constants.TILE_SIZE), 1)
-
-    def drop(self):
-        self.y += 1
-
-    def shift_left(self):
-        self.x -= 1
-
-    def shift_right(self):
-        self.x += 1
-
-
-# Piece represents a piece that is being controlled by the user and not part of the tetris board yet
-class Piece:
-    def __init__(self):
-        self.piece_type = random.randrange(0, 7)  # picks random piece type
-        self.color = list(constants.COLORS.values())[self.piece_type]
-
-        # determines piece starting position base on piece type
-        if self.piece_type == 0:
-            self.position = [2, -3]
-        elif self.piece_type == 6:
-            self.position = [2, -2]
-        else:
-            self.position = [3, -2]
-
-        self.blocks = []
-        self.orientation = 0
-
-        for block_num in range(4):
-            self.blocks.append(
-                Block(self.position[0] + constants.PIECES[self.piece_type][self.orientation][block_num][0],
-                      self.position[1] + constants.PIECES[self.piece_type][self.orientation][block_num][1],
-                      self.color)
-            )
-
-    def draw(self, surface):
-        for block in self.blocks:
-            block.draw(surface)
-
-    # updates block positions based on current piece position
-    def update(self):
-        i = 0
-        for block in self.blocks:
-            block.x = self.position[0] + constants.PIECES[self.piece_type][self.orientation][i][0]
-            block.y = self.position[1] + constants.PIECES[self.piece_type][self.orientation][i][1]
-            i += 1
-
-    def drop(self):
-        self.position[1] += 1
-        self.update()
-
-    def shift_left(self):
-        self.position[0] -= 1
-        self.update()
-
-    def shift_right(self):
-        self.position[0] += 1
-        self.update()
-
-    def rotate_clockwise(self):
-        if self.orientation == 3:
-            self.orientation = 0
-        else:
-            self.orientation += 1
-        self.update()
-
-    def rotate_counterclockwise(self):
-        if self.orientation == 0:
-            self.orientation = 3
-        else:
-            self.orientation -= 1
-        self.update()
-
-
-# board keeps track of the blocks on the tetris board and draws them
+# Board keeps track of the blocks on the tetris board and draws them
 class Board:
     def __init__(self):
         self.state = []
@@ -143,10 +56,12 @@ class Board:
                 self.state[x][y-1] = 0
 
 
+# Game is responsible for instantiating and managing all other objects as well as dealing with user input
 class Game:
     def __init__(self):
         pygame.init()
-        self.playfield = pygame.display.set_mode(constants.PLAYFIELD_RES)
+        self.display = pygame.display.set_mode(constants.DISPLAY_RES)
+        self.playfield = pygame.Surface(constants.PLAYFIELD_RES)
         self.clock = pygame.time.Clock()
         self.is_game_over = False
         self.board = Board()
@@ -155,7 +70,7 @@ class Game:
         self.time_since_last_drop = 0
         self.drop_time = 2000  # milliseconds
 
-    # is_valid_move() checks if move is valid and returns true or false accordingly
+    # check if move is valid and returns true or false accordingly
     def is_valid_move(self, move):
         if move == "down":
             for block in self.piece.blocks:
@@ -195,6 +110,7 @@ class Game:
             self.piece.rotate_clockwise()
             return True
 
+    # adds current piece to board state and replaces current piece with a new one
     def get_new_piece(self):
         self.board.add_piece(self.piece)
         lines = 0
@@ -205,7 +121,7 @@ class Game:
         self.detect_game_over()
         self.time_since_last_drop = 0
 
-    # get_user_input() takes in user input and moves piece accordingly
+    # takes in user input and moves piece accordingly
     def get_user_input(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
@@ -227,7 +143,7 @@ class Game:
             if event.key == pygame.K_x and self.is_valid_move("clockwise"):
                 self.piece.rotate_clockwise()
 
-    # drop_timer() tracks milliseconds since last piece drop and drops again when time reaches drop_time
+    # tracks milliseconds since last piece drop and drops again when time reaches drop_time
     def drop_timer(self):
         dt = self.clock.tick()
         self.time_since_last_drop += dt
@@ -238,6 +154,7 @@ class Game:
                 self.get_new_piece()
             self.time_since_last_drop = 0
 
+    # returns true if game over is detected or false if not
     def detect_game_over(self):
         for block in self.piece.blocks:
             if self.board.has_block(block.x, block.y):
@@ -245,6 +162,16 @@ class Game:
             else:
                 self.is_game_over = False
 
+    def draw_displays(self):
+        self.display.fill("grey")
+        self.playfield.fill("black")
+        self.board.draw(self.playfield)
+        self.piece.draw(self.playfield)
+        self.display.blit(self.playfield, ((constants.DISPLAY_WIDTH / 2 - constants.PLAYFIELD_WIDTH / 2) *
+                                           constants.TILE_SIZE, 0))
+        pygame.display.flip()
+
+    # starts game loop
     def run(self):
         while not self.is_game_over:
             for event in pygame.event.get():
@@ -252,9 +179,5 @@ class Game:
                     sys.exit()
                 self.get_user_input(event)
             self.drop_timer()
-            self.playfield.fill("black")
-            self.board.draw(self.playfield)
-            self.piece.draw(self.playfield)
-            pygame.display.flip()
-
+            self.draw_displays()
         print("Game Over!")
