@@ -22,6 +22,7 @@ class Piece:
             self.position = [3, -2]
 
         self.blocks = []
+        self.next_piece_blocks = []
         self.orientation = 0
 
         for block_num in range(4):
@@ -30,9 +31,25 @@ class Piece:
                       self.position[1] + constants.PIECES[self.piece_type][self.orientation][block_num][1],
                       self.color)
             )
+            if self.next_piece_type == 0 or self.next_piece_type == 6:
+                self.next_piece_blocks.append(
+                    Block(constants.PIECES[self.next_piece_type][0][block_num][0] - 0.5,
+                          constants.PIECES[self.next_piece_type][0][block_num][1],
+                          list(constants.COLORS.values())[self.next_piece_type])
+                )
+            else:
+                self.next_piece_blocks.append(
+                    Block(constants.PIECES[self.next_piece_type][0][block_num][0],
+                          constants.PIECES[self.next_piece_type][0][block_num][1],
+                          list(constants.COLORS.values())[self.next_piece_type])
+                )
 
     def draw(self, surface):
         for block in self.blocks:
+            block.draw(surface)
+
+    def draw_next_piece(self, surface):
+        for block in self.next_piece_blocks:
             block.draw(surface)
 
     # updates block positions based on current piece position

@@ -2,66 +2,18 @@ import pygame
 import constants
 import sys
 from piece import Piece
-
-
-# Board keeps track of the blocks on the tetris board and draws them
-class Board:
-    def __init__(self):
-        self.state = []
-        # populate empy board state
-        for column in range(constants.PLAYFIELD_WIDTH):
-            self.state.append([])
-            for row in range(constants.PLAYFIELD_HEIGHT):
-                self.state[column].append(0)  # 0 represents and empty tile on the board
-
-    # draw all blocks in board state
-    def draw(self, surface):
-        for column in self.state:
-            for row in column:
-                if row != 0:
-                    row.draw(surface)
-
-    # has_block(x, y) checks if Block.state[x][y] has a block
-    def has_block(self, x, y):
-        if 0 <= x < constants.PLAYFIELD_WIDTH and 0 <= y < constants.PLAYFIELD_HEIGHT:
-            if self.state[x][y] != 0:
-                return True
-            else:
-                return False
-        else:
-            return False
-
-    # add piece to board state
-    def add_piece(self, piece):
-        for block in piece.blocks:
-            self.state[block.x][block.y] = block
-
-    # detects if board state has a line to clear and returns the row number or -1 if no row is detected
-    def detect_line(self):
-        for row in range(0, constants.PLAYFIELD_HEIGHT):
-            count = 0
-            for column in range(constants.PLAYFIELD_WIDTH):
-                if self.state[column][row] != 0:
-                    count += 1
-            if count == constants.PLAYFIELD_WIDTH:
-                return row
-        return -1
-
-    def clear_line(self, row):
-        for y in range(row, 0, -1):
-            for x in range(0, constants.PLAYFIELD_WIDTH):
-                if self.state[x][y-1] != 0:
-                    self.state[x][y-1].drop()
-                self.state[x][y] = self.state[x][y-1]
-                self.state[x][y-1] = 0
+from board import Board
 
 
 # Game is responsible for instantiating and managing all other objects as well as dealing with user input
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.font.init()
+        self.my_font = pygame.font.SysFont('Arial', 30)
         self.display = pygame.display.set_mode(constants.DISPLAY_RES)
         self.playfield = pygame.Surface(constants.PLAYFIELD_RES)
+        self.preview_window = pygame.Surface(constants.PREVIEW_WINDOW_RES)
         self.clock = pygame.time.Clock()
         self.is_game_over = False
         self.board = Board()
@@ -117,7 +69,7 @@ class Game:
         while self.board.detect_line() != -1 and lines < 4:
             self.board.clear_line(self.board.detect_line())
             lines += 1
-        self.piece = Piece()
+        self.piece = Piece(self.piece.next_piece_type)
         self.detect_game_over()
         self.time_since_last_drop = 0
 
@@ -162,13 +114,19 @@ class Game:
             else:
                 self.is_game_over = False
 
+    # draws all surfaces on pygame window
     def draw_displays(self):
         self.display.fill("grey")
         self.playfield.fill("black")
+        self.preview_window.fill("black")
         self.board.draw(self.playfield)
         self.piece.draw(self.playfield)
-        self.display.blit(self.playfield, ((constants.DISPLAY_WIDTH / 2 - constants.PLAYFIELD_WIDTH / 2) *
-                                           constants.TILE_SIZE, 0))
+        text_surface = self.my_font.render('Next', False, (0, 0, 0))
+        self.preview_window.blit(text_surface, (constants.TILE_SIZE, 0))
+        self.piece.draw_next_piece(self.preview_window)
+        self.display.blit(self.playfield, (0, 0))
+        self.display.blit(self.preview_window, (constants.PLAYFIELD_WIDTH * constants.TILE_SIZE, 0))
+
         pygame.display.flip()
 
     # starts game loop
