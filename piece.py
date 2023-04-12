@@ -13,7 +13,7 @@ class Piece:
         self.next_piece_type = random.randrange(0, 7)
         self.color = list(constants.COLORS.values())[self.piece_type]
 
-        # determines piece starting position base on piece type
+        # determines piece starting position based on piece type
         if self.piece_type == 0:
             self.position = [2, -3]
         elif self.piece_type == 6:
@@ -60,22 +60,18 @@ class Piece:
             block.y = self.position[1] + constants.PIECES[self.piece_type][self.orientation][i][1]
             i += 1
 
-    # drops piece by 1 block and updates blocks[] y values
-    def drop(self):
+    def move_down(self):
         self.position[1] += 1
         self.update()
 
-    # moves piece to the left by 1 block and updates blocks[] x values
-    def shift_left(self):
+    def move_left(self):
         self.position[0] -= 1
         self.update()
 
-    # moves piece to the right by 1 block and updates blocks[] x values
-    def shift_right(self):
+    def move_right(self):
         self.position[0] += 1
         self.update()
 
-    # rotates piece clockwise and updates blocks[] x and y values
     def rotate_clockwise(self):
         if self.orientation == 3:
             self.orientation = 0
@@ -83,7 +79,6 @@ class Piece:
             self.orientation += 1
         self.update()
 
-    # rotates piece counterclockwise and updates blocks[] x and y values
     def rotate_counterclockwise(self):
         if self.orientation == 0:
             self.orientation = 3

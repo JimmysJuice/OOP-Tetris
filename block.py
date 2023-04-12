@@ -10,8 +10,8 @@ class Block:
         self.color = color
 
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, (self.x * constants.TILE_SIZE, self.y * constants.TILE_SIZE,
-                                               constants.TILE_SIZE, constants.TILE_SIZE))
-        pygame.draw.rect(surface, constants.COLORS["black"], (self.x * constants.TILE_SIZE,
-                                                              self.y * constants.TILE_SIZE, constants.TILE_SIZE,
-                                                              constants.TILE_SIZE), 1)
+        pygame.draw.rect(surface, self.color, (self.x * constants.BLOCK_SIZE, self.y * constants.BLOCK_SIZE,
+                                               constants.BLOCK_SIZE, constants.BLOCK_SIZE))
+        pygame.draw.rect(surface, constants.COLORS["black"], (self.x * constants.BLOCK_SIZE,
+                                                              self.y * constants.BLOCK_SIZE, constants.BLOCK_SIZE,
+                                                              constants.BLOCK_SIZE), 1)

@@ -1,14 +1,13 @@
-TILE_SIZE = 30
-DISPLAY_WIDTH = 15
+BLOCK_SIZE = 30  # pixels per block
+DISPLAY_WIDTH = 15  # blocks
 DISPLAY_HEIGHT = 20
-DISPLAY_RES = [DISPLAY_WIDTH * TILE_SIZE, DISPLAY_HEIGHT * TILE_SIZE]
+DISPLAY_RES = (DISPLAY_WIDTH * BLOCK_SIZE, DISPLAY_HEIGHT * BLOCK_SIZE)
 PLAYFIELD_WIDTH = 10
 PLAYFIELD_HEIGHT = 20
-PLAYFIELD_RES = [PLAYFIELD_WIDTH * TILE_SIZE, PLAYFIELD_HEIGHT * TILE_SIZE]
+PLAYFIELD_RES = (PLAYFIELD_WIDTH * BLOCK_SIZE, PLAYFIELD_HEIGHT * BLOCK_SIZE)
 PREVIEW_WINDOW_WIDTH = 5
 PREVIEW_WINDOW_HEIGHT = 5
-PREVIEW_WINDOW_RES = [PREVIEW_WINDOW_WIDTH * TILE_SIZE, PREVIEW_WINDOW_HEIGHT * TILE_SIZE]
-FPS = 60
+PREVIEW_WINDOW_RES = (PREVIEW_WINDOW_WIDTH * BLOCK_SIZE, PREVIEW_WINDOW_HEIGHT * BLOCK_SIZE)
 COLORS = {
     "red":  (255, 0, 0),
     "green": (0, 255, 0),
@@ -23,11 +22,11 @@ COLORS = {
     "white": (255, 255, 255),
 }
 # PIECES represents the block coordinates for every piece and every possible piece rotation position
-# PIECES[piece type][piece orientation][block number][block co-ords (x or y)]
-PIECES = ((((1, 3), (2, 3), (3, 3), (4, 3)),  # I piece
-           ((3, 1), (3, 2), (3, 3), (3, 4)),
-           ((1, 3), (2, 3), (3, 3), (4, 3)),
-           ((2, 1), (2, 2), (2, 3), (2, 4))),
+# PIECES[piece type][orientation][block number][block co-ords (x, y)]
+PIECES = ((((1, 3), (2, 3), (3, 3), (4, 3)),  # I piece orientation 0 
+           ((3, 1), (3, 2), (3, 3), (3, 4)),  #         orientation 1
+           ((1, 3), (2, 3), (3, 3), (4, 3)),  #         orientation 2
+           ((2, 1), (2, 2), (2, 3), (2, 4))), #         orientation 3
           (((1, 2), (2, 2), (3, 2), (2, 3)),  # T piece
            ((2, 1), (2, 2), (2, 3), (1, 2)),
            ((2, 1), (1, 2), (2, 2), (3, 2)),

@@ -21,6 +21,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.time_since_last_drop = 0
         self.drop_time = 2000  # milliseconds
+        self.score = 0
 
     # check if move is valid and returns true or false accordingly
     def is_valid_move(self, move):
@@ -43,23 +44,35 @@ class Game:
             else:
                 return True
         if move == "clockwise":
-            self.piece.rotate_clockwise()
+            if self.piece.orientation == 3:
+                new_orientation = 0
+            else: 
+                new_orientation = self.piece.orientation + 1
+
+            block_num = 0
             for block in self.piece.blocks:
-                if block.x >= constants.PLAYFIELD_WIDTH or block.x < 0 or block.y >= constants.PLAYFIELD_HEIGHT or \
-                        self.board.has_block(block.x, block.y):
-                    self.piece.rotate_counterclockwise()
+                x = self.piece.position[0] + constants.PIECES[self.piece.piece_type][block_num][new_orientation][0]
+                y = self.piece.position[1] + constants.PIECES[self.piece.piece_type][block_num][new_orientation][1]
+                if x >= constants.PLAYFIELD_WIDTH or x < 0 or y >= constants.PLAYFIELD_HEIGHT or \
+                        self.board.has_block(x, y):
                     return False
-            self.piece.rotate_counterclockwise()
+                block_num += 1
             return True
 
         if move == "counterclockwise":
-            self.piece.rotate_counterclockwise()
+            if self.piece.orientation == 0:
+                new_orientation = 3
+            else: 
+                new_orientation = self.piece.orientation - 1
+
+            block_num = 0
             for block in self.piece.blocks:
-                if block.x >= constants.PLAYFIELD_WIDTH or block.x < 0 or block.y >= constants.PLAYFIELD_HEIGHT or \
-                        self.board.has_block(block.x, block.y):
-                    self.piece.rotate_clockwise()
+                x = self.piece.position[0] + constants.PIECES[self.piece.piece_type][block_num][new_orientation][0]
+                y = self.piece.position[1] + constants.PIECES[self.piece.piece_type][block_num][new_orientation][1]
+                if x >= constants.PLAYFIELD_WIDTH or x < 0 or y >= constants.PLAYFIELD_HEIGHT or \
+                        self.board.has_block(x, y):
                     return False
-            self.piece.rotate_clockwise()
+                block_num += 1
             return True
 
     # adds current piece to board state and replaces current piece with a new one
@@ -68,6 +81,7 @@ class Game:
         lines = 0
         while self.board.detect_line() != -1 and lines < 4:
             self.board.clear_line(self.board.detect_line())
+            self.score += 1
             lines += 1
         self.piece = Piece(self.piece.next_piece_type)
         self.detect_game_over()
@@ -83,9 +97,9 @@ class Game:
                 else:
                     self.get_new_piece()
             if event.key == pygame.K_LEFT and self.is_valid_move("left"):
-                self.piece.shift_left()
+                self.piece.move_left()
             if event.key == pygame.K_RIGHT and self.is_valid_move("right"):
-                self.piece.shift_right()
+                self.piece.move_right()
             if event.key == pygame.K_UP:
                 while self.is_valid_move("down"):
                     self.piece.drop()
@@ -122,11 +136,10 @@ class Game:
         self.board.draw(self.playfield)
         self.piece.draw(self.playfield)
         text_surface = self.my_font.render('Next', False, (0, 0, 0))
-        self.preview_window.blit(text_surface, (constants.TILE_SIZE, 0))
+        self.preview_window.blit(text_surface, (constants.BLOCK_SIZE, 0))
         self.piece.draw_next_piece(self.preview_window)
         self.display.blit(self.playfield, (0, 0))
-        self.display.blit(self.preview_window, (constants.PLAYFIELD_WIDTH * constants.TILE_SIZE, 0))
-
+        self.display.blit(self.preview_window, (constants.PLAYFIELD_WIDTH * constants.BLOCK_SIZE, 0))
         pygame.display.flip()
 
     # starts game loop
