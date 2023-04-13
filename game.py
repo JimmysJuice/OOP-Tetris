@@ -92,7 +92,7 @@ class Game:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
                 if self.is_valid_move("down"):
-                    self.piece.drop()
+                    self.piece.move_down()
                     self.time_since_last_drop = 0
                 else:
                     self.get_new_piece()
@@ -102,7 +102,7 @@ class Game:
                 self.piece.move_right()
             if event.key == pygame.K_UP:
                 while self.is_valid_move("down"):
-                    self.piece.drop()
+                    self.piece.move_down()
                 self.get_new_piece()
             if event.key == pygame.K_z and self.is_valid_move("counterclockwise"):
                 self.piece.rotate_counterclockwise()
@@ -115,7 +115,7 @@ class Game:
         self.time_since_last_drop += dt
         if self.time_since_last_drop >= self.drop_time:
             if self.is_valid_move("down"):
-                self.piece.drop()
+                self.piece.move_down()
             else:
                 self.get_new_piece()
             self.time_since_last_drop = 0
