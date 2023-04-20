@@ -13,14 +13,14 @@ class Game:
         self.my_font = pygame.font.SysFont('Arial', 30)
         self.display = pygame.display.set_mode(constants.DISPLAY_RES)
         self.playfield = pygame.Surface(constants.PLAYFIELD_RES)
-        self.preview_window = pygame.Surface(constants.PREVIEW_WINDOW_RES)
+        self.info_panel = pygame.Surface(constants.INFO_PANEL_RES)
         self.clock = pygame.time.Clock()
         self.is_game_over = False
         self.board = Board()
         self.piece = Piece()
         self.clock = pygame.time.Clock()
         self.time_since_last_drop = 0
-        self.drop_time = 2000  # milliseconds
+        self.drop_time = 1500  # milliseconds
         self.score = 0
 
     # check if move is valid and returns true or false accordingly
@@ -79,17 +79,31 @@ class Game:
                 block_num += 1
             return True
 
-    # adds current piece to board state and replaces current piece with a new one
+    # adds current piece to board state and replaces current piece with the next one
     def get_new_piece(self):
         self.board.add_piece(self.piece)
+        self.piece = Piece(self.piece.next_piece_type)
+        self.check_for_lines()
+        self.detect_game_over()
+        self.time_since_last_drop = 0
+
+    # detect lines and change score and game speed accordingly
+    def check_for_lines(self):
+        initial_level = self.get_level()
         lines = 0
         while self.board.detect_line() != -1 and lines < 4:
             self.board.clear_line(self.board.detect_line())
             self.score += 1
             lines += 1
-        self.piece = Piece(self.piece.next_piece_type)
-        self.detect_game_over()
-        self.time_since_last_drop = 0
+        self.score += lines
+        if self.get_level() > initial_level:
+            self.decrease_drop_time()
+
+    def get_level(self):
+        return self.score // 4
+
+    def decrease_drop_time(self):
+        self.drop_time *= 0.8
 
     # takes in user input and moves piece accordingly
     def get_user_input(self, event):
@@ -134,16 +148,19 @@ class Game:
 
     # draws all surfaces on pygame window
     def draw_displays(self):
-        self.display.fill("grey")
         self.playfield.fill("black")
-        self.preview_window.fill("black")
+        self.info_panel.fill("gray19")
         self.board.draw(self.playfield)
         self.piece.draw(self.playfield)
-        text_surface = self.my_font.render('Next', False, (0, 0, 0))
-        self.preview_window.blit(text_surface, (constants.BLOCK_SIZE, 0))
-        self.piece.draw_next_piece(self.preview_window)
+        next_piece_text_surface = self.my_font.render('Next:', False, constants.COLORS["white"])
+        self.info_panel.blit(next_piece_text_surface, (30, 10))
+        level_text = self.my_font.render(f'Level: {self.get_level()}', False, constants.COLORS["white"])
+        self.info_panel.blit(level_text, (25, 450))
+        score_text = self.my_font.render(f'Score: {self.score}', False, constants.COLORS["white"])
+        self.info_panel.blit(score_text, (20, 500))
+        self.piece.draw_next_piece(self.info_panel)
         self.display.blit(self.playfield, (0, 0))
-        self.display.blit(self.preview_window, (constants.PLAYFIELD_WIDTH * constants.BLOCK_SIZE, 0))
+        self.display.blit(self.info_panel, (constants.PLAYFIELD_WIDTH * constants.BLOCK_SIZE, 0))
         pygame.display.flip()
 
     # starts game loop

@@ -44,7 +44,7 @@ class Board:
                 return row
         return -1
 
-    #shifts all all rows above row down
+    # shifts down all rows above the specified row
     def clear_line(self, row):
         for y in range(row, 0, -1):
             for x in range(0, constants.PLAYFIELD_WIDTH):
