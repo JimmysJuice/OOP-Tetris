@@ -51,10 +51,13 @@ class Game:
 
             block_num = 0
             for block in self.piece.blocks:
-                x = self.piece.position[0] + constants.PIECES[self.piece.piece_type][block_num][new_orientation][0]
-                y = self.piece.position[1] + constants.PIECES[self.piece.piece_type][block_num][new_orientation][1]
-                if x >= constants.PLAYFIELD_WIDTH or x < 0 or y >= constants.PLAYFIELD_HEIGHT or \
-                        self.board.has_block(x, y):
+                x = self.piece.position[0] + constants.PIECES[self.piece.piece_type][new_orientation][block_num][0]
+                y = self.piece.position[1] + constants.PIECES[self.piece.piece_type][new_orientation][block_num][1]
+                # check if block would be outside of playfield
+                if x >= constants.PLAYFIELD_WIDTH or x < 0 or y >= constants.PLAYFIELD_HEIGHT:
+                    return False
+                # check if tile is already taken on board
+                if self.board.has_block(x, y):
                     return False
                 block_num += 1
             return True
@@ -67,10 +70,11 @@ class Game:
 
             block_num = 0
             for block in self.piece.blocks:
-                x = self.piece.position[0] + constants.PIECES[self.piece.piece_type][block_num][new_orientation][0]
-                y = self.piece.position[1] + constants.PIECES[self.piece.piece_type][block_num][new_orientation][1]
-                if x >= constants.PLAYFIELD_WIDTH or x < 0 or y >= constants.PLAYFIELD_HEIGHT or \
-                        self.board.has_block(x, y):
+                x = self.piece.position[0] + constants.PIECES[self.piece.piece_type][new_orientation][block_num][0]
+                y = self.piece.position[1] + constants.PIECES[self.piece.piece_type][new_orientation][block_num][1]
+                if x >= constants.PLAYFIELD_WIDTH or x < 0 or y >= constants.PLAYFIELD_HEIGHT:
+                    return False
+                if self.board.has_block(x, y):
                     return False
                 block_num += 1
             return True
