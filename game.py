@@ -174,7 +174,7 @@ class Game:
         self.info_panel.blit(next_piece_text_surface, (50, 10))
         level_text = self.my_font.render(f'Level: {self.get_level()}', False, constants.COLORS["white"])
         self.info_panel.blit(level_text, (10, 450))
-        lines_text = self.my_font.render(f'Score: {self.lines}', False, constants.COLORS["white"])
+        lines_text = self.my_font.render(f'Lines: {self.lines}', False, constants.COLORS["white"])
         self.info_panel.blit(lines_text, (10, 500))
         score_text = self.my_font.render(f'Score: {self.score}', False, constants.COLORS["white"])
         self.info_panel.blit(score_text, (10, 550))
