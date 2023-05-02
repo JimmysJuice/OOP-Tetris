@@ -20,7 +20,7 @@ class Game:
         self.piece = Piece()
         self.clock = pygame.time.Clock()
         self.time_since_last_drop = 0
-        self.drop_time = 1500  # milliseconds
+        self.drop_time = 800  # milliseconds
         self.lines = 0
         self.score = 0
 
@@ -123,7 +123,7 @@ class Game:
     def decrease_drop_time(self):
         self.drop_time *= 0.8
 
-    # takes in user input and moves piece accordingly
+    # receives user input and moves piece accordingly
     def get_user_input(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
